@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.model.Order">
+	
+	<insert id="InsertOrder">
+		insert into order_house
+		values(order_seq.nextval, #{gno}, #{house_no}, #{photo}, #{checkin}, #{checkout},
+		#{adult}, #{kid}, #{house_price})
+	</insert>
+
+	<select id="SelectOrder" resultType="MyOrder">
+		select * from order_house
+		where order_no = #{order_no}
+	</select>
+
+	<select id="CountOrder" resultType="int">
+		select count(*) from
+		order_house
+		where house_no = #{house_no} and gno = #{gno}
+	</select>
+
+	<update id="UpdateOrder">
+		update order_house
+		set checkin = #{checkin}, checkout = #{checkout},
+		adult = #{adult}, kid = #{kid}, house_price = #{house_price}
+		where house_no = #{house_no} and gno = #{gno}
+	</update>
+
+	<insert id="InsertPayfor">
+		insert into payfor
+		values(payfor_seq.nextval, #{gno}, #{house_no}, #{wpay}, #{coupon_no}, #{use_point}, #{st_no},
+		#{house_price}, #{extra_price}, #{discount_price}, #{totalPoint},
+		#{totalPrice}, #{order_no}, #{review_use})
+	</insert>
+	<select id="SelectPayforByGno" resultType="MyPayfor">
+		select h.name name, po.*
+		from house h, (select * from payfor natural join order_house
+		where gno = #{gno}) po
+		where h.house_no = po.house_no
+	</select>
+
+	<select id="MaxOrderNo" resultType="int">
+		select max(order_no) from order_house
+	</select>
+
+	<select id="SelectPayforByPno" resultType="MyPayfor">
+		select h.name name, po.*
+		from house h, (select * from payfor natural join order_house
+					   where gno = #{gno}) po
+		where h.house_no = po.house_no and pno = #{pno}
+	</select>
+
+	<insert id="InsertPayfor_default0">
+		insert into payfor(pno,gno,house_no,wpay,totalPrice)
+		values(payfor_seq.nextval,0,#{house_no},#{wpay,jdbcType=VARCHAR},#{totalPrice,jdbcType=NUMERIC})
+	</insert>
+	<select id="SelectPayforByNo" resultType="MyPayfor">
+		select h.name name, po.*
+		from house h, (select * from payfor natural join order_house
+					   where gno = #{gno}) po
+		where h.house_no = po.house_no and pno=#{pno}
+	</select>
+
+	<select id="SelectMaxPno" resultType="int">
+		select max(pno) pno from payfor
+	</select>
+
+	<update id="UpdateReviewUse">
+		update payfor
+		set review_use = 1
+		where pno = #{pno}
+	</update>
+
+	<update id="UpdateReviewUse0">
+		update payfor
+		set review_use = 0
+		where pno = #{pno}
+	</update>
+	
+</mapper>

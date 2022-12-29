@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="review.model.Review">
+	
+	<insert id="InsertReview">
+		insert into review(review_no,gno,house_no,name,checkin,checkout,pno,total,text)
+		values(Rseq.nextval,#{gno}, #{house_no},#{name},#{checkin},#{checkout},#{pno},#{total},#{text})
+	</insert>
+
+	<select id="SelectReview" resultType="MyReview">
+		select r.*, h.name
+		from review r, house h
+		where r.house_no = h.house_no and r.gno=#{gno}
+	</select>
+	
+	<select id="getReviewByNo" resultType="MyReview">
+		select * from review
+		where review_no = #{review_no}
+	</select>
+	
+	<delete id="ReviewDelete">
+		delete review where review_no = #{review_no}
+	</delete>
+	
+	<update id="UpdateReview">
+		update review
+ 		set total=#{total},text=#{text}
+ 		where review_no=#{review_no}
+	</update>
+	
+	<select id="SelectReviewByPno" resultType="MyReview">
+		select r.*, h.name
+		from review r, house h
+		where r.house_no = h.house_no and pno=#{pno}
+	</select>
+	
+	<select id="GetReview" resultType="MyReview">
+		select r.*, g.name as gname
+		from review r, guest g
+		where r.gno = g.gno
+	</select>
+	
+	<select id="GetReviewByHouseno" resultType="MyReview">
+		select r.*, g.name as gname
+		from review r, guest g
+		where r.gno = g.gno and house_no=#{house_no}
+	</select>
+	
+	<select id="ReviewAvg" resultType="MyReview">
+		select round(avg(total),1) as reviewavg from review
+		where house_no = #{house_no}
+	</select>
+	
+	<select id="SelectReviewByReviewNo" resultType="MyReview">
+		select * from review
+		where review_no = #{review_no}
+	</select>
+	
+</mapper>

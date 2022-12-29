@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin.model.Admin">
+
+	<insert id="InsertTheme">
+		insert into theme
+		values(theme_seq.nextval,#{name},#{img},#{contents})
+	</insert>
+
+	<select id="GetAllTheme" resultType="MyTheme">
+		select * from theme
+		order by tno
+	</select>
+
+	<delete id="DeleteTheme">
+		delete theme
+		where tno = #{tno}
+	</delete>
+
+	<select id="SelectByTno" resultType="MyTheme">
+		select * from theme
+		where tno = #{tno}
+	</select>
+
+	<update id="UpdateTheme">
+		update theme
+		set name=#{name}, img=#{img},
+		contents=#{contents}
+		where tno=#{tno}
+	</update>
+
+	<insert id="InsertSubTh">
+		insert into subtheme
+		values(subtheme_seq.nextval,#{name},#{theme_cate},#{contents})
+	</insert>
+
+	<select id="GetAllSub" resultType="MySubTheme">
+		select * from subtheme
+		order by sno
+	</select>
+
+	<select id="GetAllSub_ByKeyword" resultType="MySubTheme">
+		select * from
+		subtheme
+		where theme_cate = #{theme_cate}
+		order by sno
+	</select>
+
+	<select id="GetThemeCate" resultType="MyTheme">
+		select name from theme
+	</select>
+
+	<select id="SelectSubBySno" resultType="MySubTheme">
+		select * from subtheme
+		where sno=#{sno}
+	</select>
+
+	<delete id="DeleteSub">
+		delete subtheme
+		where sno = #{sno}
+	</delete>
+
+	<update id="UpdateSub">
+		update subtheme
+		set name=#{name},
+		theme_cate=#{theme_cate}, contents=#{contents}
+		where sno=#{sno}
+	</update>
+	
+	<select id="GetCoupon_ByName" resultType="String">
+		select code from admin_coupon
+		where name=#{name}
+	</select>
+	
+	<insert id="InsertCoupon">
+		insert into admin_coupon
+		values(#{code}, #{name}, #{percent}, #{sale})
+	</insert>
+
+	<select id="GetAllCoupon" resultType="MyCoupon">
+		select * from admin_coupon
+	</select>
+
+	<select id="SelectCoupon_ByCode" resultType="MyCoupon">
+		select * from admin_coupon
+		where code=#{code}
+	</select>
+
+	<update id="UpdateCoupon">
+		update admin_coupon
+		set code=#{code}, name=#{name}, percent=#{percent}, sale=#{sale}
+		where code=#{oldCode}
+	</update>
+
+	<delete id="DeleteCoupon">
+		delete admin_coupon
+		where code=#{code}
+	</delete>
+
+	<update id="UpdateSubTheme">
+		update subtheme
+		set theme_cate = #{theme_cate}
+		where theme_cate = #{name}
+	</update>
+
+</mapper>

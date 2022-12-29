@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="host.model.Host">
+	<select id="HostfindId" resultType="HostBean">
+		select * from host
+		where name=#{name} and phone=#{phone}
+	</select>
+
+	<select id="HostfindPw" resultType="HostBean">
+		select * from host
+		where name=#{name} and email=#{email}
+	</select>
+
+	<insert id="InsertHost">
+		insert into host(hno, email, password, name, phone)
+		values(Hseq.nextval, #{email}, #{password}, #{name}, #{phone})
+	</insert>
+
+	<select id="CheckEP" resultType="HostBean">
+		select * from host
+		where email = #{email} and password = #{password}
+	</select>
+
+	<select id="SearchEmail" resultType="HostBean">
+		select * from host
+		where email=#{email}
+	</select>
+
+	<select id="selectHostOne" resultType="HostBean">
+		select * from host
+		where
+		email = #{email}
+	</select>
+
+	<insert id="InsertHouse">
+		insert into house(house_no,hno,tname,sname,name,facility,num,maxnum,price,point,photo)
+		values(house_seq.nextval,#{hno},#{tname},#{sname},#{name},#{facility},
+		#{num},#{maxnum},#{price},#{point},#{photo})
+	</insert>
+
+	<insert id="InsertAddress">
+		insert into address(address_no,house_no,address,detailed)
+		values(address_seq.nextval,address_seq.currval,#{address},#{detailed})
+	</insert>
+
+	<insert id="InsertContent">
+		insert into content(content_no,house_no,con1,con2,con3,notice,rule,checkinTime,checkoutTime)
+		values(Cseq.nextval,Cseq.currval,#{con1},#{con2},#{con3},#{notice},#{rule},
+		#{checkinTime},#{checkoutTime})
+	</insert>
+
+	<select id="SelectMax_HouseNo" resultType="int">
+		select max(house_no)
+		from house
+	</select>
+
+	<select id="GetAllHouse_ByHno" resultType="MyAllHouse">
+		select h.house_no, h.name, h.tname, h.sname, h.house_date, count(pno)-1 cnt
+		from house h, address a, content c, payfor p
+		where h.hno=#{hno} and h.house_no = a.house_no and h.house_no = c.house_no
+		and h.house_no=p.house_no
+		group by h.house_no, h.name, h.tname, h.sname, h.house_date
+	</select>
+
+	<delete id="DeleteHouse">
+		delete house
+		where house_no=#{house_no}
+	</delete>
+
+	<select id="SelectHouse_ByNo" resultType="MyAllHouse">
+		select * from house h, address a, content c
+		where h.house_no=#{house_no} and a.house_no = #{house_no} and c.house_no = #{house_no}
+	</select>
+
+	<update id="UpdateHouse">
+		update house
+		set tname = #{tname},
+		sname = #{sname}, name = #{name}, facility = #{facility}, num = #{num}, maxnum = #{maxnum},
+		price = #{price}, point = #{point}, photo = #{photo}
+		where house_no=#{house_no}
+	</update>
+
+	<update id="UpdateAddress">
+		update address
+		set address=#{address}, detailed=#{detailed}
+		where house_no=#{house_no}
+	</update>
+
+	<update id="UpdateContent">
+		update content
+		set con1=#{con1}, con2=#{con2}, con3=#{con3}, notice=#{notice}, rule=#{rule},
+		checkinTime=#{checkinTime}, checkoutTime=#{checkoutTime}
+		where house_no=#{house_no}
+	</update>
+
+	<select id="GetAllHouse" resultType="MyAllHouse">
+		select h.house_no house_no, h.name, h.price, a.address, a.detailed, h.photo
+		from house h inner join address a
+		on h.house_no = a.house_no
+	</select>
+
+	<select id="GetAllTheme_ByTname" resultType="MyAllHouse">
+		select * from house h, address a
+		where h.tname = #{tname} and h.house_no = a.house_no
+	</select>
+
+	<select id="GetAllSubTheme_ByTno" resultType="MyAllHouse">
+		select * from house h, address a
+		where h.sname = #{sname} and h.house_no = a.house_no
+	</select>
+
+	<update id="UpdateHost">
+		update host
+		set name = #{name}, password = #{password}, phone = #{phone}
+		where email = #{email}
+	</update>
+
+	<select id="GetHouseByHouse_no" resultType="MyAllHouse">
+		select h.house_no house_no, h.name, h.price, a.address, a.detailed, h.photo
+		from house h, address a
+		where h.house_no = #{house_no} and h.house_no = a.house_no
+	</select>
+
+	<select id="GetHosts" resultType="HostBean">
+		select b.rv_cnt, b.hno, h.* ,rank 
+		from (select a.rv_cnt,a.hno,dense_rank() over (order by a.rv_cnt desc) rank 
+			  from (select count(*) rv_cnt, hou.hno
+					from house hou, payfor p 
+					where hou.house_no = p.house_no and p.gno >0
+					group by hou.hno) a ) b, host h 
+		where b.hno = h.hno
+	</select>
+
+	<select id="HostPageReserve" resultType="MyReserve">
+		select o.adult, o.kid, p.wpay, p.st_no, p.totalPrice, p.gno,
+		o.order_no, o.checkin, o.checkout,
+		g.name gname, g.email, ab.*
+		from order_house o, payfor p , guest g, 
+			(select hno, h.house_no, h.tname, h.sname, h.name, a. address, a.detailed
+			 from house h, address a where hno=#{hostno} and h.house_no=a.house_no) ab
+		where o.order_no = p.order_no and g.gno = p.gno
+		and o.house_no = ab.house_no and p.house_no = ab.house_no
+	</select>
+
+	<select id="AdminGPageReserve" resultType="MyReserve">
+		select o.adult, o.kid, p.totalPrice, g.name as gname, g.email, g.gno, p.pno, hs.name as hsname,
+		o.checkin, o.checkout, ab.*
+		from payfor p, guest g, host hs, order_house o,
+			(select hno, h.house_no, h.tname, h.sname, h.name, a.address, a.detailed
+			 from house h, address a 
+			 where hno=#{hostno} and h.house_no=a.house_no) ab
+		where p.gno = g.gno and p.house_no = ab.house_no and hs.hno=#{hostno} 
+		and o.order_no=p.order_no
+	</select>
+
+	<!-- 그래프 -->
+	<select id="GraphByTheme" resultType="MyAllHouse">
+		select t.name as tname, nvl(h.cnt,0) as cnt
+		from (select tname, count(*) as cnt 
+			  from house
+			  group by tname) h
+			  right outer join
+			 (select name from theme) t
+		on h.tname = t.name
+		order by t.name
+	</select>
+
+	<select id="GraphBySubTheme" resultType="MyAllHouse">
+		select s.name as sname, nvl(h.cnt,0) as cnt
+		from (select sname, count(*) as cnt 
+			  from house
+			  group by sname) h
+			  right outer join
+			 (select name from subtheme
+			  where theme_cate = #{theme}) s
+		on h.sname = s.name
+	</select>
+
+	<select id="TodayHouse" resultType="int">
+		select count(*) as cnt from house
+		where to_char(house_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+
+	<select id="YesterdayHouse" resultType="int">
+		select count(*) as cnt
+		from house
+		where to_char(house_date,'yyyy-mm-dd') = #{yesterday}
+	</select>
+
+	<select id="MinHouse" resultType="int">
+		select min(cnt) as cnt
+		from (select house_date, count(*) as cnt
+			  from (select trunc(house_date,'dd') as house_date from house
+					where to_char(house_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by house_date
+			  order by house_date)
+	</select>
+
+	<select id="MaxHouse" resultType="int">
+		select max(cnt) as cnt 
+		from (select house_date, count(*) as cnt
+			  from (select trunc(house_date,'dd') as house_date from house
+					where to_char(house_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by house_date
+			  order by house_date)
+	</select>
+
+	<update id="UpdateHouseTheme">
+		update house
+		set tname = #{tname}
+		where tname = #{original_name}
+	</update>
+
+	<update id="UpdateHouseSubTheme">
+		update house
+		set sname = #{sname}
+		where sname = #{original_name}
+	</update>
+
+	<!-- 가입자수 관련 그래프 -->
+	<select id="YearMonthHost" resultType="HostBean">
+		select d.joindate , nvl(m.cnt,0) as cnt
+		from (select joindate, count(*) as cnt
+			  from (select trunc(joindate,'dd') as joindate
+			  		from host
+			  		where hno > 0)
+			  where joindate between #{date} and last_day(#{date})
+			  group by joindate
+			  order by joindate) m right outer join
+			 (SELECT TO_DATE(#{date},'YYYY-MM-DD')+(ROWNUM-1) AS joindate
+			  FROM DUAL
+			  CONNECT BY LAST_DAY(#{date}) - TO_DATE(#{date},'YYYY-MM-DD') + 1 >= LEVEL) d
+		on m.joindate = d.joindate
+		order by d.joindate
+	</select>
+
+	<!-- 오늘 가입자수 -->
+	<select id="TodayHost" resultType="int">
+		select count(*) as cnt from host
+		where to_char(joindate,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd') and hno > 0
+	</select>
+
+	<!-- 어제 가입자수 -->
+	<select id="YesterdayHost" resultType="int">
+		select count(*) as cnt from host
+		where to_char(joindate,'yyyy-mm-dd') = #{yesterday} and hno > 0
+	</select>
+
+</mapper>

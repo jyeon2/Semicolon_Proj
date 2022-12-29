@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="wish.model.Wish">
+	
+	<select id="SelectWishByGno" resultType="MyWish">
+		select * from wish
+		where gno = #{gno}
+	</select>
+	
+	<insert id="InsertWish">
+		insert into wish
+		values(wish_seq.nextval,#{gno},#{house_no})
+	</insert>
+	
+	<delete id="DeleteWish">
+		delete from wish
+		where gno = #{gno} and house_no = #{house_no}
+	</delete>
+	
+	<select id="CountWishByHouseNo" resultType="int">
+		select count(*) from wish
+		where house_no = #{house_no}
+	</select>
+	
+</mapper>

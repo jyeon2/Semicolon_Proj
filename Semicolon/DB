@@ -1,0 +1,410 @@
+
+--------------------------------------------------------------------------
+[게스트 (Guest)]
+
+drop sequence Gseq;
+create sequence Gseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE guest CASCADE CONSTRAINTS;
+create table guest(
+   gno number primary key, --게스트
+   email varchar2(40) not null unique, -- ajax : 중복체크
+   password varchar2(20) not null,
+   name varchar2(20),
+   phone varchar2(11), --pattern 설정
+   joindate date default sysdate,  --가입 축하 쿠폰
+   kakao number default 0, --kakao (카카오 : 1, 아닌거 : 0)
+   mypoint number default 0, --포인트 줄거면 포인트컬럼 필요 (게스트가 가지고 있는 포인트)
+   coupon_code varchar2(100)
+);
+
+insert into guest(gno,email,password,name,joindate)
+values(0,'admin@a','123','관리자',sysdate);
+insert into guest(gno,email,password,name,joindate)
+values(Gseq.nextval,'guest@a','123','게스트1',sysdate);
+
+commit;
+
+--------------------------------------------------------------------------
+[호스트 (Host)]
+drop sequence Hseq;
+create sequence Hseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE host CASCADE CONSTRAINTS;
+create table host(
+	hno number primary key, -- 호스트
+	email varchar2(40) not null unique, -- ajax : 중복체크
+	password varchar(20) not null,
+	name varchar2(20),
+	phone varchar2(11),
+	joindate date default sysdate 
+);
+
+commit;
+
+insert into host(hno,email,password,name,joindate)
+values(0,'admin@a','123','관리자',sysdate);
+insert into host(hno,email,password,name,joindate)
+values(Hseq.nextval,'host@a','123','호스트1',sysdate);
+
+commit;
+
+--------------------------------------------------------------------------
+[카테고리-테마 (Theme)]
+drop sequence theme_seq;
+create sequence theme_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE theme CASCADE CONSTRAINTS;
+create table theme(
+   tno number, -- pk
+   name varchar2(30) primary key,
+   img varchar2(300), -- 테마 (작은 이미지)
+   contents varchar2(100) -- 테마 설명
+);
+
+commit;
+
+insert into theme values(theme_seq.nextval,'자연','nature.jpg','자연');
+insert into theme values(theme_seq.nextval,'도시','building.jpg','도시');
+insert into theme values(theme_seq.nextval,'이색숙소','camping.jpg','이색숙소');
+insert into theme values(theme_seq.nextval,'여행타입','two.jpg','여행타입');
+insert into theme values(theme_seq.nextval,'반려동물','dog.png','반려동물');
+insert into theme values(theme_seq.nextval,'힐링','house.png','힐링');
+
+commit;
+
+--------------------------------------------------------------------------
+[카테고리-서브테마 (SubTheme)]
+drop sequence subtheme_seq;
+create sequence subtheme_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE subtheme CASCADE CONSTRAINTS;
+create table subtheme(
+   sno number primary key, -- pk
+   name varchar2(30),
+   theme_cate varchar2(30) references theme(name) on delete cascade, --테마 설정
+   contents varchar2(100) -- 서브테마 설명
+);
+
+commit;
+
+insert into subtheme values(subtheme_seq.nextval,'숲','자연','자연의 숲 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'바다','자연','자연의 바다 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'산','자연','자연의 산 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'시티','도시','도시의 시티 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'야경','도시','도시의 야경 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'캠핑카','이색숙소','이색숙소의 캠핑카 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'한옥','이색숙소','이색숙소의 한옥 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'오로라','이색숙소','이색숙소의 오로라 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'나홀로여행','여행타입','여행타입의 나홀로여행 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'커플여행','여행타입','여행타입의 커플여행 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'가족여행','여행타입','여행타입의 가족여행 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'강아지','반려동물','반려동물의 강아지 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'고양이','반려동물','반려동물의 고양이 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'스파','힐링','힐링의 스파 테마입니다.');
+insert into subtheme values(subtheme_seq.nextval,'호캉스','힐링','힐링의 호캉스 테마입니다.');
+
+commit;
+
+
+--------------------------------------------------------------------------
+[상품-숙소(House)]
+drop sequence house_seq;
+create sequence house_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE house CASCADE CONSTRAINTS;
+create table house(
+   house_no number primary key,
+   hno number references host(hno) on delete cascade, -- 호스트 번호 (누구네 집인지)
+   tname varchar2(20),-- 테마
+   sname varchar2(20),--서브테마
+   name varchar2(30), -- 숙소이름
+   facility varchar2(200), --편의시설 (체크박스로)
+      --calendar --달력 (X)
+   num number, --기본 인원수
+   maxnum number, --최대 인원수
+   price number default 0, -- 가격
+   point number, -- 포인트 적립(1%적립)
+   house_date date default sysdate, --등록 날짜
+   photo varchar2(300) -- 사진
+); 
+
+commit;
+
+--------------------------------------------------------------------------
+[숙소 설명 (Content)]
+drop sequence Cseq;
+create sequence Cseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE content CASCADE CONSTRAINTS;
+create table content(
+	content_no number primary key, --pk
+	house_no number references house(house_no) on delete cascade, --fk
+	con1 varchar2(1000), -- 설명(1)
+	con2 varchar2(1000), -- 설명(2)
+	con3 varchar2(1000), -- 설명(3)
+	notice varchar2(1000),-- 주의사항
+	rule varchar(1000), -- 이용규칙
+	checkinTime varchar2(10), -- 체크인 시간
+	checkoutTime varchar2(10) -- 체크아웃 시간
+);
+
+commit;
+
+--------------------------------------------------------------------------
+
+[주소(Address)] (지도에서 사용)
+drop sequence address_seq;
+create sequence address_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE address CASCADE CONSTRAINTS;
+create table address(
+   address_no number primary key, --pk
+   house_no number references house(house_no) on delete cascade, --fk
+   address varchar2(100), -- 주소(필수)
+   detailed varchar2(50) -- 상세주소(선택)
+);
+
+commit;
+
+--------------------------------------------------------------------------
+[리뷰 (Review)]
+drop sequence Rseq;
+create sequence Rseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE review CASCADE CONSTRAINTS;
+create table review(
+   review_no number primary key, --pk
+   gno number, -- 회원 (누가쓴건지) -- reference delete 참고 
+   house_no number references house(house_no) on delete cascade, --fk
+   total varchar2(30), -- 총점   
+   text varchar2(300), -- 한줄평
+   reviewdate date default sysdate, -- 리뷰를 작성한 날짜
+   name varchar2(30),
+   pno number,
+   checkin date,
+   checkout date
+);
+commit;
+
+--------------------------------------------------------------------------
+
+[찜 (Wish)]
+drop sequence wish_seq;
+create sequence wish_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE wish CASCADE CONSTRAINTS;
+create table wish(
+	wish_no number primary key, --pk
+	gno number references guest(gno) on delete cascade, -- 회원(누가쓴건지) fk
+	house_no number -- 숙소(찜한 숙소들) 
+);
+
+commit;
+
+--------------------------------------------------------------------------
+[예약 (order)]
+drop sequence order_seq;
+create sequence order_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE order_house CASCADE CONSTRAINTS;
+create table order_house(
+	order_no number primary key, --pk
+	gno number, -- 회원 정보
+	house_no number, --숙소 번호
+	photo varchar2(30),
+	checkin date, -- 체크인 날짜
+	checkout date, -- 체크아웃 날짜
+	adult number default 0, -- 성인수
+	kid number default 0, -- 어린이수
+	house_price number -- 추가 금액
+);
+
+commit;
+
+--------------------------------------------------------------------------
+[결제 (Payfor)]
+drop sequence payfor_seq;
+create sequence payfor_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE payfor CASCADE CONSTRAINTS;
+create table payfor(
+   pno number primary key, --pk
+   gno number not null, -- 회원정보 (이름, 메일)
+   house_no number not null, -- 숙소정보 (어떤 숙소인지)
+   wpay varchar2(30) not null,-- radio credit or cash
+   coupon_no number, --쿠폰사용
+   use_point number, --포인트사용
+   st_no number, --정기권사용ㅇ
+   house_price number,
+   extra_price number,
+   discount_price number,
+   totalPoint number,
+   totalPrice number default 0 not null, -- 총 결제 금액
+   order_no number references order_house(order_no) on delete cascade, --예약 테이블
+   review_use number
+);
+
+commit;
+
+--------------------------------------------------------------------------
+[호스트-관리자 게시판 (Board)] 
+drop sequence board_seq;
+create sequence board_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE board CASCADE CONSTRAINTS;
+create table board(
+	bno number primary key,
+	writer varchar2(10) not null, --글쓴이
+	email varchar2(40),
+	title varchar2(100) not null,--글제목
+	content varchar2(1000) not null, --글내용
+	pw varchar2(12) not null, --비번
+	write_date date not null,--작성일
+	readcount int default 0, --조회수
+	ref number not null,
+	re_step number not null,
+	re_level number not null
+);
+
+commit;
+
+--------------------------------------------------------------------------
+[쿠폰 (Coupon) - 게스트용]
+drop sequence coupon_seq;
+create sequence coupon_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE coupon CASCADE CONSTRAINTS;
+create table coupon(
+   coupon_no number primary key,
+   gno number references guest(gno) on delete cascade, --어떤 게스트인지
+   code varchar(50) references admin_coupon(code) on delete cascade, --쿠폰 코드
+   use number default 1, -- 사용 여부 (사용가능 : 1, 사용했으면 0로 바꾸기) 
+   period date -- 사용기간(언제까지 쓸 수 있는 쿠폰인지)
+);
+
+commit;
+
+
+--------------------------------------------------------------------------
+[쿠폰 (Coupon) - 관리자용]
+drop sequence admincoupon_seq;
+create sequence admincoupon_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE admin_coupon CASCADE CONSTRAINTS;
+create table admin_coupon(
+	code varchar2(50) primary key, --쿠폰 코드
+	name varchar(50), --쿠폰 이름
+	percent number default 0, -- 몇 퍼센트 할인 쿠폰인지
+	sale number default 0 -- 얼마 할인 쿠폰인지
+);
+
+commit;
+
+insert into admin_coupon values('welcome','가입 축하 쿠폰',10,0);
+
+commit;
+
+--------------------------------------------------------------------------
+[정기권]
+
+drop sequence season_seq;
+create sequence season_seq
+increment by 1
+start with 1
+minvalue 1
+maxvalue 10000
+nocache;
+
+DROP TABLE season_t CASCADE CONSTRAINTS;
+create table season_t (
+   st_no number primary key,
+   gno number references guest(gno) on delete cascade, --어떤 게스트인지
+   ticket_choice number not null, -- 가격  radio로 선택
+   money number --결제하고 남은 금액
+);
+
+commit;
+
+--------------------------------------------------------------------------
+
+[공지]
+drop sequence Nseq;
+create sequence Nseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE notice CASCADE CONSTRAINTS;
+create table notice(
+   nno number primary key,
+   title varchar2(80) not null,--글제목
+   content varchar2(1000) not null, --글내용
+   cate varchar2(30), --카테고리
+   coupon varchar2(30), --쿠폰
+   nt_date date default sysdate,--작성일
+   n_readcount number default 0, --조회수
+   nfile varchar2(50) --파일이름
+);
+
+commit;
+
+	

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+   <typeAliases>
+      <typeAlias type="admin.model.ThemeBean" alias="MyTheme"/>
+      <typeAlias type="admin.model.SubThemeBean" alias="MySubTheme"/>
+      <typeAlias type="guest.model.GuestBean" alias="GuestBean" />
+      <typeAlias type="host.model.HostBean" alias="HostBean" />
+      <typeAlias type="board.model.BoardBean" alias="MyBoard" />
+      <typeAlias type="notice.model.NoticeBean" alias="MyNotice" />
+      <typeAlias type="host.model.AllBean" alias="MyAllHouse" />
+      <typeAlias type="order.model.OrderBean" alias="MyOrder" />
+      <typeAlias type="wish.model.WishBean" alias="MyWish" />
+      <typeAlias type="guest.model.SeasonTBean" alias="MySeasonT" />
+      <typeAlias type="guest.model.CouponBean" alias="MyGCoupon" />
+      <typeAlias type="order.model.PayforBean" alias="MyPayfor" />
+      <typeAlias type="host.model.ReserveBean" alias="MyReserve" />
+      <typeAlias type="admin.model.CouponBean" alias="MyCoupon" />
+  	  <typeAlias type="review.model.ReviewBean" alias="MyReview" />
+   </typeAliases>
+   <mappers>
+      <mapper resource="mybatis/guest.xml" />
+      <mapper resource="mybatis/admin.xml" />
+      <mapper resource="mybatis/host.xml" />
+      <mapper resource="mybatis/board.xml" />
+      <mapper resource="mybatis/notice.xml" />
+      <mapper resource="mybatis/order.xml" />
+      <mapper resource="mybatis/wish.xml" />
+      <mapper resource="mybatis/review.xml" />
+   </mappers>
+   
+</configuration>

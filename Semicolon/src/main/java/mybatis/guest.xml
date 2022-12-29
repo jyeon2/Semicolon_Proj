@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="guest.model.Guest">
+	
+	<insert id="InsertGuest">
+		insert into guest(gno, email, password, name, phone)
+		values(gseq.nextval, #{email}, #{password}, #{name}, #{phone})
+	</insert>
+
+	<select id="CheckEP" resultType="GuestBean">
+		select * from guest
+		where email = #{email} and password = #{password}
+	</select>
+
+	<select id="FindId" resultType="GuestBean">
+		select * from guest
+		where
+		name=#{name} and phone=#{phone}
+	</select>
+
+	<select id="FindPw" resultType="GuestBean">
+		select * from guest
+		where
+		name=#{name} and email=#{email}
+	</select>
+	
+	<insert id="InsertKakaoGuest">
+		insert into guest(gno, email, password, name, kakao)
+		values(gseq.nextval, #{email}, #{password}, #{name}, #{kakao})
+	</insert>
+
+	<select id="SelectKakaoGuest" resultType="GuestBean">
+		select * from guest
+		where email = #{email} and kakao = 1
+	</select>
+
+	<select id="SelectNormalGuest" resultType="GuestBean">
+		select * from guest
+		where email = #{email} and kakao = 0
+	</select>
+	
+	<select id="SearchEmail" resultType="GuestBean">
+		select * from guest
+		where email=#{email}
+	</select>
+	
+	<update id="UpdateNormalGuest">
+		update guest
+		set name = #{name}, password = #{password}, phone = #{phone}
+		where email = #{email}
+	</update>
+
+	<update id="UpdateKakaoGuest">
+		update guest
+		set phone = #{phone}
+		where email = #{email}
+	</update>
+
+	<select id="GetSearchThemeList" resultType="MyTheme">
+		select * from theme
+		where name like #{keyword}
+	</select>
+	
+	<select id="GetSearchSubThemeList" resultType="MySubTheme">
+		select * from subtheme
+		where name like #{keyword}
+	</select>
+	
+	<insert id="InsertSeasonT">
+		insert into season_t
+		values(season_seq.nextval, #{gno}, #{ticket_choice}, #{money})
+	</insert>
+
+	<select id="SelectSeasonTByGno" resultType="MySeasonT">
+		select * from season_t
+		where gno = #{gno}
+	</select>
+
+	<select id="SelectSeasonTByStNo" resultType="MySeasonT">
+		select * from season_t
+		where st_no = #{st_no}
+	</select>
+
+	<update id="UpdateSeasonTMoney">
+		update season_t
+		set money = #{money}
+		where st_no = #{st_no}
+	</update>
+	
+	<select id="SelectCouponByGno" resultType="MyGCoupon">
+		select * from coupon natural join admin_coupon
+		where gno = #{gno}
+	</select>
+
+	<select id="SelectCouponByCouponNo" resultType="MyGCoupon">
+		select * from coupon natural join admin_coupon
+		where coupon_no = #{coupon_no}
+	</select>
+	
+	<select id="SelectGuestByGno" resultType="GuestBean">
+		select * from guest
+		where gno = #{gno}
+	</select>
+
+	<update id="UpdateMyPoint">
+		update guest
+		set mypoint = #{mypoint}
+		where gno = #{gno}
+	</update>
+	
+	<insert id="InsertCoupon">
+		insert into coupon
+		values(coupon_seq.nextval, #{gno}, #{code}, #{use}, #{period})
+	</insert>
+
+	<update id="UpdateUse">
+		update coupon
+		set use = #{use}
+		where coupon_no = #{coupon_no}
+	</update>
+	
+	<insert id="DouwnLoadC_insertCoupon">
+		insert into coupon(coupon_no,gno,code,period)
+		values(coupon_seq.nextval,#{gno},#{code},#{period})
+	</insert>
+
+	<delete id="DeleteGuest">
+		delete from guest
+		where gno = #{gno}
+	</delete>
+
+	<!-- 나경 추가 부분 -->
+	<update id="UpdateCoupon_code">
+		update guest
+		set coupon_code=#{coupon_code}
+		where gno=#{gno}
+	</update>
+
+	<delete id="DeleteCoupon_ByCouponNo">
+		delete coupon
+		where gno=#{gno} and coupon_no=#{coupon_no}
+	</delete>
+
+	<!-- 지현 그래프 -->
+	<!-- 가입자수 관련 그래프 -->
+	<select id="YearMonthGuest" resultType="GuestBean">
+		select d.joindate , nvl(m.cnt,0) as cnt
+		from (select joindate, count(*) as cnt 
+			  from (select trunc(joindate,'dd') as joindate 
+					from guest
+					where gno > 0)   
+			  where joindate between #{date} and last_day(#{date})
+			  group by joindate
+			  order by joindate) m right outer join 
+			 (SELECT TO_DATE(#{date},'YYYY-MM-DD')+(ROWNUM-1) AS joindate
+			  FROM DUAL
+			  CONNECT BY LAST_DAY(#{date}) - TO_DATE(#{date},'YYYY-MM-DD') + 1 >= LEVEL) d
+		on m.joindate = d.joindate
+		order by d.joindate
+	</select>
+
+	<!-- 어제 가입자수 -->
+	<select id="YesterdayGuest" resultType="int">
+		select count(*) as cnt from guest
+		where to_char(joindate,'yyyy-mm-dd') = #{yesterday} and gno > 0
+	</select>
+
+	<!-- 오늘 가입자수 -->
+	<select id="TodayGuest" resultType="int">
+		select count(*) as cnt from guest
+		where to_char(joindate,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd') and gno > 0
+	</select>
+
+</mapper>

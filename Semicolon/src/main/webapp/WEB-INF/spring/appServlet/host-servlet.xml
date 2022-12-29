@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<mvc:annotation-driven/>
+
+	<mvc:resources mapping="/resources/**" location="/resources/"/>
+	
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="WEB-INF/host/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+
+	<context:component-scan base-package="host"/>
+	<context:component-scan base-package="admin"/>
+	<context:component-scan base-package="guest"/>
+	<context:component-scan base-package="notice"/>
+	<context:component-scan base-package="wish"/>
+	<context:component-scan base-package="order"/>
+	    <context:component-scan base-package="review"/>
+	
+	<!-- 파일 업로드하기 -->
+   <!-- MultipartRequest 설정 -->
+   <!-- new MultipartRequest( , , , ) 
+   <bean id="spring.RegularCommonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <property name="maxUploadSize" value="100000000" />
+      <property name="maxInMemorySize" value="100000000" />
+      <property name="defaultEncoding" value="UTF-8" /> 
+   </bean>-->
+   <!-- <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <property name="maxUploadSize" value="10485760" />
+      <property name="defaultEncoding" value="UTF-8" />
+   </bean> -->
+   
+   <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+       <property name="maxUploadSize" value="50000000" /> <!-- 최대로 업로드가 가능한 파일의 크기 설정 50MB-->
+       <property name="maxInMemorySize" value="1000000" /> <!-- 디스크에 임시 파일을 생성하기 전 메모리에 보관할 수 있는 최대 바이트 크기를 설정 -->
+       <property name="defaultEncoding" value="utf-8" />
+   </bean>
+</beans>
+
+
+
+<!-- 
+<property name="maxUploadSize" value="10485760" />
+<property name="defaultEncoding" value="UTF-8" /> 
+-->
